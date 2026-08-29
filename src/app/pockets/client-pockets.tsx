@@ -128,31 +128,29 @@ export function PocketsClient({
                 return (
                   <div
                     key={pocket.id}
-                    className="p-4 border border-border/60 rounded-2xl bg-background hover:bg-accent/20 transition-colors group"
+                    className="p-4 border border-border/60 rounded-2xl bg-background hover:bg-accent/20 transition-colors group space-y-3"
                   >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3 min-w-0 pr-2 flex-1">
+                    {/* Row 1: Icon, Pocket Name, Type Badge & Actions */}
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-3 min-w-0 flex-1 overflow-hidden">
                         <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                          <Wallet className="h-4.5 w-4.5 text-primary" />
+                          <Wallet className="h-5 w-5 text-primary" />
                         </div>
-                        <div className="min-w-0 flex-1">
-                          <MarqueeText text={pocket.name} className="font-semibold text-sm" />
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-medium bg-muted text-muted-foreground mt-0.5">
+                        <div className="min-w-0 flex-1 overflow-hidden">
+                          <MarqueeText text={pocket.name} className="font-bold text-sm text-foreground" />
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold bg-muted text-muted-foreground mt-0.5">
                             {typeLabel ? (language === "id" ? typeLabel.id : typeLabel.en) : pocket.pocketType}
                           </span>
                         </div>
                       </div>
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        <p className="font-bold text-base tracking-tight tabular-nums mr-1">
-                          {formatCurrency(balNum)}
-                        </p>
+                      <div className="flex items-center gap-1 shrink-0">
                         <EditPocketDialog pocket={pocket} onSuccess={() => router.refresh()} />
                         {initialPockets.length > 1 && (
                           <Button
                             variant="ghost"
                             size="icon-sm"
                             onClick={() => handleDeletePocket(pocket.id, pocket.name)}
-                            className="opacity-0 group-hover:opacity-100 text-muted-foreground/50 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all"
+                            className="text-muted-foreground/40 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                           </Button>
@@ -160,8 +158,18 @@ export function PocketsClient({
                       </div>
                     </div>
 
+                    {/* Row 2: Balance Amount */}
+                    <div className="flex items-center justify-between pt-2 border-t border-border/40">
+                      <span className="text-xs font-medium text-muted-foreground">
+                        {language === "id" ? "Saldo Dompet" : "Balance"}
+                      </span>
+                      <span className="font-bold text-base tracking-tight tabular-nums text-foreground">
+                        {formatCurrency(balNum)}
+                      </span>
+                    </div>
+
                     {targetNum && progress !== null && (
-                      <div className="mt-3 space-y-1.5 pt-3 border-t border-border/60">
+                      <div className="space-y-1.5 pt-2 border-t border-border/40">
                         <div className="flex justify-between text-xs text-muted-foreground font-medium">
                           <span>{t.progress} — {progress}%</span>
                           <span className="tabular-nums">{language === "id" ? "Target" : "Goal"}: {formatCurrency(targetNum)}</span>
@@ -210,29 +218,29 @@ export function PocketsClient({
                 return (
                   <div
                     key={b.id}
-                    className={`p-4 rounded-2xl border transition-colors group ${
+                    className={`p-4 rounded-2xl border transition-colors space-y-2.5 ${
                       isOver
                         ? "bg-red-50/50 dark:bg-red-950/20 border-red-200/60 dark:border-red-900/50"
                         : "bg-background border-border/60 hover:bg-accent/20"
                     }`}
                   >
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="font-semibold flex items-center gap-2 min-w-0 flex-1 pr-2">
+                    {/* Row 1: Category Name & Actions */}
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="font-semibold flex items-center gap-2 min-w-0 flex-1 overflow-hidden">
                         <span
                           className="w-2.5 h-2.5 rounded-full shrink-0"
                           style={{ backgroundColor: b.category?.color || "#3b82f6" }}
                         />
-                        <MarqueeText text={b.category?.name || "Kategori"} className="text-sm font-semibold" />
+                        <div className="min-w-0 flex-1 overflow-hidden">
+                          <MarqueeText text={b.category?.name || "Kategori"} className="text-sm font-bold text-foreground" />
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1 shrink-0">
                         {isOver && (
-                          <span className="text-[10px] font-bold text-red-500 bg-red-100 dark:bg-red-900/40 px-1.5 py-0.5 rounded-md shrink-0">
-                            {language === "id" ? "Melebihi!" : "Over!"}
+                          <span className="text-[10px] font-bold text-red-500 bg-red-100 dark:bg-red-900/40 px-1.5 py-0.5 rounded-md">
+                            {language === "id" ? "Over!" : "Over!"}
                           </span>
                         )}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <span className={`font-bold text-xs tabular-nums ${isOver ? "text-red-500" : "text-muted-foreground"}`}>
-                          {formatCurrency(b.spent)} / {formatCurrency(b.limit)}
-                        </span>
                         <EditBudgetDialog
                           budgetId={b.id}
                           categoryId={b.categoryId}
@@ -246,26 +254,36 @@ export function PocketsClient({
                           variant="ghost"
                           size="icon-sm"
                           onClick={() => handleDeleteBudget(b.id, b.category?.name || "Kategori")}
-                          className="opacity-0 group-hover:opacity-100 text-muted-foreground/50 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all"
+                          className="text-muted-foreground/40 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                         </Button>
                       </div>
                     </div>
+
+                    {/* Row 2: Progress bar */}
                     <Progress
                       value={percent}
-                      className="h-1.5 bg-muted"
+                      className="h-2 bg-muted"
                       indicatorColor={isOver ? "bg-red-500" : "bg-primary"}
                     />
-                    <div className="flex items-center justify-between mt-1.5">
-                      <p className="text-[10px] text-muted-foreground">{percent}% {language === "id" ? "digunakan" : "used"}</p>
-                      {isOver && (
-                        <p className="text-[10px] text-red-500 flex items-center gap-1 font-semibold">
-                          <ShieldAlert className="h-3 w-3" />
-                          {language === "id" ? `Lebih ${formatCurrency(b.spent - b.limit)}` : `+${formatCurrency(b.spent - b.limit)} over`}
-                        </p>
-                      )}
+
+                    {/* Row 3: Spent / Limit breakdown */}
+                    <div className="flex items-center justify-between text-xs pt-0.5">
+                      <span className="text-muted-foreground font-medium">
+                        {percent}% {language === "id" ? "digunakan" : "used"}
+                      </span>
+                      <span className={`font-bold tabular-nums ${isOver ? "text-red-500" : "text-foreground"}`}>
+                        {formatCurrency(b.spent)} <span className="text-muted-foreground font-normal">/ {formatCurrency(b.limit)}</span>
+                      </span>
                     </div>
+
+                    {isOver && (
+                      <p className="text-[11px] text-red-500 flex items-center gap-1 font-semibold pt-0.5">
+                        <ShieldAlert className="h-3.5 w-3.5" />
+                        {language === "id" ? `Melebihi budget ${formatCurrency(b.spent - b.limit)}` : `+${formatCurrency(b.spent - b.limit)} over`}
+                      </p>
+                    )}
                   </div>
                 );
               })

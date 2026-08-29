@@ -12,6 +12,7 @@ import { AddTransactionDialog } from "@/components/modals/add-transaction-dialog
 import { AddCategoryDialog } from "@/components/modals/add-category-dialog";
 import { deleteTransaction } from "@/lib/actions/transactions";
 import { useRouter } from "next/navigation";
+import { MarqueeText } from "@/components/ui/marquee-text";
 
 type TransactionWithRelations = {
   id: string;
@@ -162,110 +163,201 @@ export function TransactionsClient({
           </div>
         </CardHeader>
         <CardContent className="p-0 sm:px-6 sm:pb-6 sm:pt-0">
-          <div className="overflow-x-auto w-full">
-            <Table className="min-w-[620px] w-full">
-              <TableHeader>
-                <TableRow className="hover:bg-transparent border-border/60">
-                  <TableHead className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{language === "id" ? "Tanggal" : "Date"}</TableHead>
-                  <TableHead className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{language === "id" ? "Deskripsi" : "Description"}</TableHead>
-                  <TableHead className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{language === "id" ? "Kategori" : "Category"}</TableHead>
-                  <TableHead className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{language === "id" ? "Dompet" : "Pocket"}</TableHead>
-                  <TableHead className="text-xs font-semibold text-muted-foreground uppercase tracking-wider text-right">{language === "id" ? "Nominal" : "Amount"}</TableHead>
-                  <TableHead className="w-10" />
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredTransactions.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={6} className="py-16 text-center">
-                      <div className="flex flex-col items-center gap-2">
-                        <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
-                          <Receipt className="w-5 h-5 text-muted-foreground" />
-                        </div>
-                        <p className="text-sm text-muted-foreground font-medium">
-                          {language === "id" ? "Belum ada transaksi" : "No transactions found"}
-                        </p>
-                        <p className="text-xs text-muted-foreground/60">
-                          {searchTerm
-                            ? (language === "id" ? "Coba kata kunci lain" : "Try a different search")
-                            : (language === "id" ? "Catat transaksi pertamamu" : "Record your first transaction")}
-                        </p>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  filteredTransactions.map((tx) => {
-                    const cfg = typeConfig[tx.type];
-                    const TypeIcon = cfg.icon;
-                    const formattedDate = new Date(tx.transactionDate).toLocaleDateString(
-                      language === "id" ? "id-ID" : "en-US",
-                      { day: "numeric", month: "short", year: "numeric" }
-                    );
-                    const amountNum = parseFloat(tx.amount);
+          {filteredTransactions.length === 0 ? (
+            <div className="py-16 px-4 text-center">
+              <div className="flex flex-col items-center justify-center gap-2 max-w-xs mx-auto">
+                <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
+                  <Receipt className="w-5 h-5 text-muted-foreground" />
+                </div>
+                <p className="text-sm text-muted-foreground font-semibold">
+                  {language === "id" ? "Belum ada transaksi" : "No transactions found"}
+                </p>
+                <p className="text-xs text-muted-foreground/60">
+                  {searchTerm
+                    ? (language === "id" ? "Coba kata kunci pencarian lain" : "Try a different search query")
+                    : (language === "id" ? "Catat transaksi pertamamu sekarang" : "Record your first transaction")}
+                </p>
+              </div>
+            </div>
+          ) : (
+            <>
+              {/* Mobile View: Clean Card List */}
+              <div className="divide-y divide-border/40 sm:hidden">
+                {filteredTransactions.map((tx) => {
+                  const cfg = typeConfig[tx.type];
+                  const TypeIcon = cfg.icon;
+                  const formattedDate = new Date(tx.transactionDate).toLocaleDateString(
+                    language === "id" ? "id-ID" : "en-US",
+                    { day: "numeric", month: "short", year: "numeric" }
+                  );
+                  const amountNum = parseFloat(tx.amount);
 
-                    return (
-                      <TableRow
-                        key={tx.id}
-                        className="group hover:bg-accent/30 border-border/40 transition-colors"
-                      >
-                        <TableCell className="whitespace-nowrap text-xs text-muted-foreground py-3.5">
-                          {formattedDate}
-                        </TableCell>
-                        <TableCell className="py-3.5">
-                          <div className="flex items-center gap-2.5">
-                            <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
-                              tx.type === "INCOME" ? "bg-emerald-50 dark:bg-emerald-950/40"
-                              : tx.type === "EXPENSE" ? "bg-red-50 dark:bg-red-950/40"
-                              : "bg-primary/8"
-                            }`}>
-                              <TypeIcon className={`w-3.5 h-3.5 ${
-                                tx.type === "INCOME" ? "text-emerald-500"
-                                : tx.type === "EXPENSE" ? "text-red-500"
-                                : "text-primary"
-                              }`} />
-                            </div>
-                            <span className="font-semibold text-sm truncate max-w-[200px]">
-                              {tx.notes || (language === "id" ? "Tanpa catatan" : "No description")}
-                            </span>
+                  return (
+                    <div key={tx.id} className="p-4 space-y-2 hover:bg-accent/20 transition-colors">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-center gap-2.5 min-w-0 flex-1 overflow-hidden">
+                          <div
+                            className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${
+                              tx.type === "INCOME"
+                                ? "bg-emerald-50 dark:bg-emerald-950/40"
+                                : tx.type === "EXPENSE"
+                                ? "bg-red-50 dark:bg-red-950/40"
+                                : "bg-primary/8"
+                            }`}
+                          >
+                            <TypeIcon
+                              className={`w-4 h-4 ${
+                                tx.type === "INCOME"
+                                  ? "text-emerald-500"
+                                  : tx.type === "EXPENSE"
+                                  ? "text-red-500"
+                                  : "text-primary"
+                              }`}
+                            />
                           </div>
-                        </TableCell>
-                        <TableCell className="py-3.5">
+                          <div className="min-w-0 flex-1 overflow-hidden">
+                            <MarqueeText
+                              text={tx.notes || (language === "id" ? "Tanpa catatan" : "No description")}
+                              className="font-bold text-sm text-foreground"
+                            />
+                            <p className="text-[11px] text-muted-foreground">{formattedDate}</p>
+                          </div>
+                        </div>
+
+                        <div className="text-right shrink-0">
+                          <p className={`font-bold text-sm tabular-nums ${cfg.classes}`}>
+                            {tx.type === "INCOME" ? "+" : tx.type === "EXPENSE" ? "-" : ""}
+                            {formatCurrency(amountNum)}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-1 border-t border-border/30 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-1.5 min-w-0 flex-1 pr-2">
                           {tx.category ? (
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold" style={{
-                              backgroundColor: `${tx.category.color || "#3b82f6"}18`,
-                              color: tx.category.color || "#3b82f6",
-                            }}>
-                              <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: tx.category.color || "#3b82f6" }} />
+                            <span
+                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold shrink-0"
+                              style={{
+                                backgroundColor: `${tx.category.color || "#3b82f6"}18`,
+                                color: tx.category.color || "#3b82f6",
+                              }}
+                            >
+                              <span
+                                className="w-1.5 h-1.5 rounded-full shrink-0"
+                                style={{ backgroundColor: tx.category.color || "#3b82f6" }}
+                              />
                               {tx.category.name}
                             </span>
                           ) : (
-                            <span className="text-xs text-muted-foreground">—</span>
+                            <span className="text-[10px] text-muted-foreground">—</span>
                           )}
-                        </TableCell>
-                        <TableCell className="text-xs text-muted-foreground whitespace-nowrap py-3.5 font-medium">
-                          {tx.pocket.name}
-                        </TableCell>
-                        <TableCell className={`text-right font-bold whitespace-nowrap tabular-nums py-3.5 ${cfg.classes}`}>
-                          {tx.type === "INCOME" ? "+" : tx.type === "EXPENSE" ? "-" : ""}
-                          {formatCurrency(amountNum)}
-                        </TableCell>
-                        <TableCell className="py-3.5">
-                          <Button
-                            variant="ghost"
-                            size="icon-sm"
-                            onClick={() => handleDelete(tx.id)}
-                            className="opacity-0 group-hover:opacity-100 text-muted-foreground/50 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all"
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })
-                )}
-              </TableBody>
-            </Table>
-          </div>
+                          <span className="truncate text-[11px]">· {tx.pocket.name}</span>
+                        </div>
+
+                        <Button
+                          variant="ghost"
+                          size="icon-xs"
+                          onClick={() => handleDelete(tx.id)}
+                          className="text-muted-foreground/40 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30"
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Desktop View: Full Data Table */}
+              <div className="hidden sm:block overflow-x-auto w-full">
+                <Table className="w-full">
+                  <TableHeader>
+                    <TableRow className="hover:bg-transparent border-border/60">
+                      <TableHead className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{language === "id" ? "Tanggal" : "Date"}</TableHead>
+                      <TableHead className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{language === "id" ? "Deskripsi" : "Description"}</TableHead>
+                      <TableHead className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{language === "id" ? "Kategori" : "Category"}</TableHead>
+                      <TableHead className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{language === "id" ? "Dompet" : "Pocket"}</TableHead>
+                      <TableHead className="text-xs font-semibold text-muted-foreground uppercase tracking-wider text-right">{language === "id" ? "Nominal" : "Amount"}</TableHead>
+                      <TableHead className="w-10" />
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredTransactions.map((tx) => {
+                      const cfg = typeConfig[tx.type];
+                      const TypeIcon = cfg.icon;
+                      const formattedDate = new Date(tx.transactionDate).toLocaleDateString(
+                        language === "id" ? "id-ID" : "en-US",
+                        { day: "numeric", month: "short", year: "numeric" }
+                      );
+                      const amountNum = parseFloat(tx.amount);
+
+                      return (
+                        <TableRow
+                          key={tx.id}
+                          className="group hover:bg-accent/30 border-border/40 transition-colors"
+                        >
+                          <TableCell className="whitespace-nowrap text-xs text-muted-foreground py-3.5">
+                            {formattedDate}
+                          </TableCell>
+                          <TableCell className="py-3.5 max-w-[220px]">
+                            <div className="flex items-center gap-2.5 overflow-hidden">
+                              <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
+                                tx.type === "INCOME" ? "bg-emerald-50 dark:bg-emerald-950/40"
+                                : tx.type === "EXPENSE" ? "bg-red-50 dark:bg-red-950/40"
+                                : "bg-primary/8"
+                              }`}>
+                                <TypeIcon className={`w-3.5 h-3.5 ${
+                                  tx.type === "INCOME" ? "text-emerald-500"
+                                  : tx.type === "EXPENSE" ? "text-red-500"
+                                  : "text-primary"
+                                }`} />
+                              </div>
+                              <div className="min-w-0 flex-1 overflow-hidden">
+                                <MarqueeText
+                                  text={tx.notes || (language === "id" ? "Tanpa catatan" : "No description")}
+                                  className="font-semibold text-sm"
+                                />
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="py-3.5">
+                            {tx.category ? (
+                              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold" style={{
+                                backgroundColor: `${tx.category.color || "#3b82f6"}18`,
+                                color: tx.category.color || "#3b82f6",
+                              }}>
+                                <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: tx.category.color || "#3b82f6" }} />
+                                {tx.category.name}
+                              </span>
+                            ) : (
+                              <span className="text-xs text-muted-foreground">—</span>
+                            )}
+                          </TableCell>
+                          <TableCell className="text-xs text-muted-foreground whitespace-nowrap py-3.5 font-medium">
+                            {tx.pocket.name}
+                          </TableCell>
+                          <TableCell className={`text-right font-bold whitespace-nowrap tabular-nums py-3.5 ${cfg.classes}`}>
+                            {tx.type === "INCOME" ? "+" : tx.type === "EXPENSE" ? "-" : ""}
+                            {formatCurrency(amountNum)}
+                          </TableCell>
+                          <TableCell className="py-3.5">
+                            <Button
+                              variant="ghost"
+                              size="icon-sm"
+                              onClick={() => handleDelete(tx.id)}
+                              className="opacity-0 group-hover:opacity-100 text-muted-foreground/50 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+            </>
+          )}
         </CardContent>
       </Card>
     </div>

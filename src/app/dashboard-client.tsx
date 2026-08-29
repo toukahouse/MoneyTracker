@@ -49,18 +49,22 @@ function StatCard({
 }) {
   const c = statColors[color];
   return (
-    <Card className="relative overflow-hidden">
+    <Card className="relative overflow-hidden p-3.5 sm:p-5 flex flex-col justify-between">
       <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-primary/3 pointer-events-none" />
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{title}</CardTitle>
-        <div className={`p-2 rounded-xl ${c.icon}`}>
-          <Icon className="h-4 w-4" />
+      <div className="flex items-center justify-between gap-2 mb-2 sm:mb-3">
+        <span className="text-[11px] sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider truncate">
+          {title}
+        </span>
+        <div className={`p-1.5 sm:p-2 rounded-xl shrink-0 ${c.icon}`}>
+          <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
         </div>
-      </CardHeader>
-      <CardContent>
-        <div className={`text-2xl font-bold tracking-tight ${valueClass}`}>{value}</div>
-        <p className="text-xs font-medium text-muted-foreground mt-1.5">{sub}</p>
-      </CardContent>
+      </div>
+      <div className="space-y-0.5 sm:space-y-1 min-w-0">
+        <div className={`text-base sm:text-lg md:text-xl lg:text-2xl font-bold tracking-tight whitespace-nowrap tabular-nums overflow-hidden text-ellipsis ${valueClass}`}>
+          {value}
+        </div>
+        <p className="text-[10px] sm:text-xs font-medium text-muted-foreground truncate">{sub}</p>
+      </div>
     </Card>
   );
 }
@@ -123,7 +127,7 @@ export function DashboardClient({
       </div>
 
       {/* Stats */}
-      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
         <StatCard
           title={t.totalBalance}
           value={formatCurrency(totalBalance)}
@@ -133,7 +137,7 @@ export function DashboardClient({
         />
         <StatCard
           title={t.netCashflow}
-          value={`${isPositive ? "+" : ""}${formatCurrency(netCashflow)}`}
+          value={`${isPositive ? "+" : "-"}${formatCurrency(Math.abs(netCashflow))}`}
           sub={language === "id" ? "Bulan ini" : "This month"}
           icon={CreditCard}
           color="green"
@@ -145,6 +149,7 @@ export function DashboardClient({
           sub={language === "id" ? "Total pengeluaran" : "Total spent"}
           icon={ArrowDownIcon}
           color="red"
+          valueClass="text-red-500"
         />
         <StatCard
           title={t.activeWishlists}
@@ -160,28 +165,34 @@ export function DashboardClient({
         <Card className="lg:col-span-4">
           <CardHeader className="pb-2">
             <div className="flex items-start justify-between gap-4 flex-wrap">
-              <div className="space-y-1">
+              <div className="space-y-1.5 min-w-0 flex-1">
                 <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
                   {t.cashflowChart}
                 </CardTitle>
-                <div className="flex items-center gap-4">
-                  <p className={`text-2xl font-bold tracking-tight ${isPositive ? "text-emerald-500" : "text-red-500"}`}>
-                    {isPositive ? "+" : ""}{formatCurrency(netCashflow)}
+                <div className="flex items-center gap-3 flex-wrap">
+                  <p className={`text-xl sm:text-2xl font-bold tracking-tight whitespace-nowrap tabular-nums ${isPositive ? "text-emerald-500" : "text-red-500"}`}>
+                    {isPositive ? "+" : "-"}{formatCurrency(Math.abs(netCashflow))}
                   </p>
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground shrink-0">
                     {isPositive
                       ? <TrendingUp className="h-3.5 w-3.5 text-emerald-500" />
                       : <TrendingDown className="h-3.5 w-3.5 text-red-500" />}
-                    {selectedMonth}
+                    <span>{selectedMonth}</span>
                   </div>
                 </div>
-                <div className="flex gap-4 text-xs text-muted-foreground">
-                  <span className="flex gap-1">
-                    <span className="text-emerald-500 font-semibold">+{formatCurrency(monthlyIncome)}</span> pemasukan
-                  </span>
-                  <span className="flex gap-1">
-                    <span className="text-red-500 font-semibold">-{formatCurrency(monthlyExpenses)}</span> pengeluaran
-                  </span>
+                <div className="flex flex-wrap items-center gap-2 text-xs pt-1">
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100/60 dark:border-emerald-900/40">
+                    <span className="text-emerald-600 dark:text-emerald-400 font-bold whitespace-nowrap tabular-nums">
+                      +{formatCurrency(monthlyIncome)}
+                    </span>
+                    <span className="text-[11px] font-medium text-muted-foreground">{language === "id" ? "pemasukan" : "income"}</span>
+                  </div>
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-red-50 dark:bg-red-950/40 border border-red-100/60 dark:border-red-900/40">
+                    <span className="text-red-600 dark:text-red-400 font-bold whitespace-nowrap tabular-nums">
+                      -{formatCurrency(monthlyExpenses)}
+                    </span>
+                    <span className="text-[11px] font-medium text-muted-foreground">{language === "id" ? "pengeluaran" : "expense"}</span>
+                  </div>
                 </div>
               </div>
 

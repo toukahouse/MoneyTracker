@@ -12,7 +12,7 @@ interface MarqueeTextProps extends React.HTMLAttributes<HTMLDivElement> {
 export function MarqueeText({
   text,
   className,
-  speed = 30,
+  speed = 28,
   ...props
 }: MarqueeTextProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -30,10 +30,11 @@ export function MarqueeText({
         const overflowing = diff > 0;
         setIsOverflowing(overflowing);
         if (overflowing) {
-          const overflowDistance = diff + 6;
+          const overflowDistance = diff + 8; // Extra padding so the final letters are fully clear
           setOffset(overflowDistance);
           const moveDuration = overflowDistance / speed;
-          setDuration(Math.max(4, Math.round(moveDuration + 3.5)));
+          // Allocate time: 25% start pause + 50% move + 17% end pause + 8% reset
+          setDuration(Math.max(4.5, Math.round((moveDuration * 2) + 2)));
         } else {
           setOffset(0);
         }
@@ -54,8 +55,7 @@ export function MarqueeText({
     <div
       ref={containerRef}
       className={cn(
-        "overflow-hidden whitespace-nowrap min-w-0 max-w-full",
-        isOverflowing && "mask-marquee-edges relative",
+        "overflow-hidden whitespace-nowrap min-w-0 max-w-full relative",
         className
       )}
       title={text}
@@ -65,7 +65,7 @@ export function MarqueeText({
         ref={textRef}
         className={cn(
           "inline-block max-w-full",
-          isOverflowing ? "animate-marquee-pingpong will-change-transform" : "truncate"
+          isOverflowing ? "animate-marquee-scroll will-change-transform" : "truncate"
         )}
         style={
           isOverflowing

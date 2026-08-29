@@ -197,31 +197,26 @@
   border-radius: 0 4px 4px 0;
 }
 
-/* === Marquee Text Animation (Scroll to End & Return) === */
-@keyframes marquee-pingpong {
-  0%, 20% {
+/* === Marquee Text Animation (Scroll Left to End & Instant Reset) === */
+@keyframes marquee-scroll-reset {
+  0%, 25% {
     transform: translateX(0);
   }
-  60%, 80% {
+  75%, 92% {
     transform: translateX(var(--marquee-offset, 0px));
   }
-  95%, 100% {
+  92.01%, 100% {
     transform: translateX(0);
   }
 }
 
-.animate-marquee-pingpong {
+.animate-marquee-scroll {
   display: inline-block;
   white-space: nowrap;
-  animation: marquee-pingpong ease-in-out infinite;
+  animation: marquee-scroll-reset ease-in-out infinite;
 }
 
-.animate-marquee-pingpong:hover,
-.animate-marquee-pingpong:active {
+.animate-marquee-scroll:hover,
+.animate-marquee-scroll:active {
   animation-play-state: paused;
-}
-
-.mask-marquee-edges {
-  mask-image: linear-gradient(to right, transparent 0%, black 6px, black calc(100% - 6px), transparent 100%);
-  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 6px, black calc(100% - 6px), transparent 100%);
 }

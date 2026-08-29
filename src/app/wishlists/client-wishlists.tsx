@@ -7,6 +7,7 @@ import { Target, CheckCircle2, Circle, Trash2, Gift, CalendarDays } from "lucide
 import { useLanguage } from "@/lib/i18n";
 import { CreateWishlistDialog } from "@/components/modals/create-wishlist-dialog";
 import { AllocateFundsDialog } from "@/components/modals/allocate-funds-dialog";
+import { EditWishlistDialog } from "@/components/modals/edit-wishlist-dialog";
 import { toggleWishlistItem, deleteWishlist } from "@/lib/actions/wishlists";
 import { useRouter } from "next/navigation";
 import { MarqueeText } from "@/components/ui/marquee-text";
@@ -133,14 +134,17 @@ export function WishlistsClient({
                         </div>
                       </div>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      onClick={() => handleDelete(wl.id, wl.title)}
-                      className="text-muted-foreground/40 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 shrink-0 transition-all"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <EditWishlistDialog wishlist={wl} onSuccess={() => router.refresh()} />
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        onClick={() => handleDelete(wl.id, wl.title)}
+                        className="text-muted-foreground/40 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
                   </div>
 
                   {wl.targetDate && (

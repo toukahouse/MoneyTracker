@@ -135,8 +135,56 @@ export async function allocateFunds(wishlistId: string, pocketId: string, amount
   revalidatePath("/");
 }
 
+export async function updateWishlist(id: string, data: {
+  title: string;
+  totalEstimatedCost: number;
+  pocketId?: string;
+  targetDate?: string;
+  priority?: "LOW" | "MEDIUM" | "HIGH";
+  status?: "PLANNING" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
+  items?: { itemName: string; estimatedPrice: number; isPurchased?: boolean }[];
+}) {
+  const wl = await db.query.wishlists.findFirst({
+    where: eq(wishlists.id, id),
+  });
+  if (!wl) return;
+
+  const currentAllocated = parseFloat(wl.allocatedAmount || "0");
+  const newStatus = data.status || (currentAllocated >= data.totalEstimatedCost ? "COMPLETED" : currentAllocated > 0 ? "IN_PROGRESS" : "PLANNING");
+
+  await db.update(wishlists)
+    .set({
+      title: data.title,
+      totalEstimatedCost: data.totalEstimatedCost.toString(),
+      pocketId: data.pocketId || null,
+      targetDate: data.targetDate || null,
+      priority: data.priority || "MEDIUM",
+      status: newStatus,
+      updatedAt: new Date(),
+    })
+    .where(eq(wishlists.id, id));
+
+  if (data.items) {
+    await db.delete(wishlistItems).where(eq(wishlistItems.wishlistId, id));
+    if (data.items.length > 0) {
+      await db.insert(wishlistItems).values(
+        data.items.map((item) => ({
+          wishlistId: id,
+          itemName: item.itemName,
+          estimatedPrice: item.estimatedPrice.toString(),
+          isPurchased: item.isPurchased || false,
+        }))
+      );
+    }
+  }
+
+  revalidatePath("/wishlists");
+  revalidatePath("/");
+}
+
 export async function deleteWishlist(id: string) {
   await db.delete(wishlists).where(eq(wishlists.id, id));
   revalidatePath("/wishlists");
   revalidatePath("/");
 }
+

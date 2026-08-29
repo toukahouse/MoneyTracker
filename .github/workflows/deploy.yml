@@ -89,7 +89,7 @@ jobs:
                 container_name: moneytracker-app
                 restart: always
                 ports:
-                  - "3000:3000"
+                  - "3050:3000"
                 env_file:
                   - .env
                 environment:

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,12 +36,18 @@ export function AddTransactionDialog({
   const [pocketId, setPocketId] = useState(pockets[0]?.id || "");
   const [categoryId, setCategoryId] = useState("");
   const [notes, setNotes] = useState("");
+  const [localCategories, setLocalCategories] = useState(categories);
 
-  const filteredCategories = categories.filter((c) => c.type === type);
+  useEffect(() => {
+    setLocalCategories(categories);
+  }, [categories]);
+
+  const filteredCategories = localCategories.filter((c) => c.type === type);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!amount || !pocketId) return;
+    e.stopPropagation();
+    if (!amount || !pocketId || loading) return;
 
     setLoading(true);
     try {
@@ -56,6 +62,7 @@ export function AddTransactionDialog({
       setOpen(false);
       setAmount("");
       setNotes("");
+      setCategoryId("");
       if (onSuccess) onSuccess();
     } catch (err) {
       console.error(err);
@@ -156,7 +163,14 @@ export function AddTransactionDialog({
                   </Label>
                   <AddCategoryDialog
                     defaultType={type}
-                    onSuccess={() => router.refresh()}
+                    onCategoryCreated={(newCat) => {
+                      setLocalCategories((prev) => {
+                        if (prev.some((c) => c.id === newCat.id)) return prev;
+                        return [...prev, newCat];
+                      });
+                      setCategoryId(newCat.id);
+                      router.refresh();
+                    }}
                     triggerLabel={language === "id" ? "+ Buat Kategori" : "+ New Category"}
                     triggerClassName="text-[11px] font-semibold text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-0.5"
                   />

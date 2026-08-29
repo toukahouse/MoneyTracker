@@ -12,24 +12,30 @@ interface MarqueeTextProps extends React.HTMLAttributes<HTMLDivElement> {
 export function MarqueeText({
   text,
   className,
-  speed = 25,
+  speed = 30,
   ...props
 }: MarqueeTextProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLSpanElement>(null);
   const [isOverflowing, setIsOverflowing] = useState(false);
-  const [duration, setDuration] = useState(8);
+  const [offset, setOffset] = useState(0);
+  const [duration, setDuration] = useState(6);
 
   useEffect(() => {
     const checkOverflow = () => {
       if (containerRef.current && textRef.current) {
         const textWidth = textRef.current.scrollWidth;
         const containerWidth = containerRef.current.clientWidth;
-        const overflowing = textWidth > containerWidth;
+        const diff = textWidth - containerWidth;
+        const overflowing = diff > 0;
         setIsOverflowing(overflowing);
         if (overflowing) {
-          // Duration based on text length so speed is consistent
-          setDuration(Math.max(6, Math.round(textWidth / speed)));
+          const overflowDistance = diff + 6;
+          setOffset(overflowDistance);
+          const moveDuration = overflowDistance / speed;
+          setDuration(Math.max(4, Math.round(moveDuration + 3.5)));
+        } else {
+          setOffset(0);
         }
       }
     };
@@ -57,22 +63,21 @@ export function MarqueeText({
     >
       <span
         ref={textRef}
-        className={isOverflowing ? "sr-only" : "inline-block truncate max-w-full"}
+        className={cn(
+          "inline-block max-w-full",
+          isOverflowing ? "animate-marquee-pingpong will-change-transform" : "truncate"
+        )}
+        style={
+          isOverflowing
+            ? ({
+                "--marquee-offset": `-${offset}px`,
+                animationDuration: `${duration}s`,
+              } as React.CSSProperties)
+            : undefined
+        }
       >
         {text}
       </span>
-
-      {isOverflowing && (
-        <div
-          className="inline-flex animate-marquee-infinite will-change-transform"
-          style={{ animationDuration: `${duration}s` }}
-        >
-          <span className="pr-8 inline-block">{text}</span>
-          <span className="pr-8 inline-block" aria-hidden="true">
-            {text}
-          </span>
-        </div>
-      )}
     </div>
   );
 }

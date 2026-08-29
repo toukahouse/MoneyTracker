@@ -194,19 +194,22 @@ export function WishlistsClient({
                             onClick={() => handleToggleItem(item.id, wl.id)}
                             className="flex items-center justify-between p-2.5 rounded-xl hover:bg-accent/40 transition-colors cursor-pointer group"
                           >
-                            <div className="flex items-center gap-2.5 min-w-0 pr-2">
+                            <div className="flex items-center gap-2.5 min-w-0 pr-2 flex-1">
                               {item.isPurchased ? (
                                 <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
                               ) : (
                                 <Circle className="h-4 w-4 text-muted-foreground/40 shrink-0 group-hover:text-muted-foreground transition-colors" />
                               )}
-                              <span className={`text-sm truncate ${
-                                item.isPurchased
-                                  ? "text-muted-foreground/50 line-through"
-                                  : "font-medium"
-                              }`}>
-                                {item.itemName}
-                              </span>
+                              <div className="min-w-0 flex-1">
+                                <MarqueeText
+                                  text={item.itemName}
+                                  className={`text-sm ${
+                                    item.isPurchased
+                                      ? "text-muted-foreground/50 line-through"
+                                      : "font-medium"
+                                  }`}
+                                />
+                              </div>
                             </div>
                             <span className={`text-xs font-semibold shrink-0 tabular-nums ${
                               item.isPurchased ? "text-muted-foreground/50" : ""

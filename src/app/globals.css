@@ -197,7 +197,7 @@
   border-radius: 0 4px 4px 0;
 }
 
-/* === Marquee Text Animation (Scroll Left to End & Instant Reset) === */
+/* === Marquee Text Animation (Synchronized Scroll Left & Instant Reset) === */
 @keyframes marquee-scroll-reset {
   0%, 25% {
     transform: translateX(0);
@@ -213,7 +213,7 @@
 .animate-marquee-scroll {
   display: inline-block;
   white-space: nowrap;
-  animation: marquee-scroll-reset ease-in-out infinite;
+  animation: marquee-scroll-reset 6.5s ease-in-out infinite;
 }
 
 .animate-marquee-scroll:hover,

@@ -61,10 +61,10 @@ export function TransactionsClient({
   };
 
   const typeFilterOptions = [
-    { value: "ALL",      label: language === "id" ? "Semua" : "All" },
-    { value: "EXPENSE",  label: language === "id" ? "Pengeluaran" : "Expense" },
-    { value: "INCOME",   label: language === "id" ? "Pemasukan" : "Income" },
-    { value: "TRANSFER", label: "Transfer" },
+    { value: "ALL",      label: language === "id" ? "Semua" : "All",             shortLabel: language === "id" ? "Semua" : "All" },
+    { value: "EXPENSE",  label: language === "id" ? "Pengeluaran" : "Expense",   shortLabel: language === "id" ? "Keluar" : "Expense" },
+    { value: "INCOME",   label: language === "id" ? "Pemasukan" : "Income",      shortLabel: language === "id" ? "Masuk" : "Income" },
+    { value: "TRANSFER", label: "Transfer",                                      shortLabel: "Transfer" },
   ];
 
   // Summary counts
@@ -86,15 +86,15 @@ export function TransactionsClient({
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{t.transactions}</h1>
           <p className="text-sm text-muted-foreground mt-0.5">{t.txDesc}</p>
         </div>
-        <div className="flex items-center gap-2 w-full sm:w-auto">
+        <div className="grid grid-cols-2 gap-2 w-full sm:w-auto sm:flex sm:items-center">
           <AddCategoryDialog
             onSuccess={() => router.refresh()}
-            triggerClassName="inline-flex items-center justify-center gap-1.5 font-semibold rounded-xl px-3 py-2 border border-border text-xs sm:text-sm text-muted-foreground hover:bg-accent/60 hover:text-foreground active:scale-95 transition-all flex-1 sm:flex-initial"
+            triggerClassName="inline-flex items-center justify-center gap-1.5 font-semibold rounded-xl px-3.5 py-2.5 border border-border text-xs sm:text-sm text-muted-foreground hover:bg-accent/60 hover:text-foreground active:scale-95 transition-all w-full sm:w-auto"
           />
           <AddTransactionDialog
             pockets={pockets}
             categories={categories}
-            triggerClassName="inline-flex items-center justify-center gap-1.5 font-semibold rounded-xl px-3 py-2 bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm active:scale-95 transition-all text-xs sm:text-sm flex-1 sm:flex-initial"
+            triggerClassName="inline-flex items-center justify-center gap-1.5 font-semibold rounded-xl px-3.5 py-2.5 bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm active:scale-95 transition-all text-xs sm:text-sm w-full sm:w-auto"
             onSuccess={() => router.refresh()}
           />
         </div>
@@ -102,20 +102,20 @@ export function TransactionsClient({
 
       {/* Quick Summary Strip */}
       {filteredTransactions.length > 0 && (
-        <div className="flex gap-3 flex-wrap">
-          <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/50">
+        <div className="flex gap-2.5 flex-wrap">
+          <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/50">
             <ArrowDownLeft className="w-3.5 h-3.5 text-emerald-500" />
             <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 tabular-nums">
               +{formatCurrency(totalIncome)}
             </span>
           </div>
-          <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-100 dark:border-red-900/50">
+          <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-100 dark:border-red-900/50">
             <ArrowUpRight className="w-3.5 h-3.5 text-red-500" />
             <span className="text-xs font-semibold text-red-700 dark:text-red-400 tabular-nums">
               -{formatCurrency(totalExpense)}
             </span>
           </div>
-          <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-muted border border-border/60">
+          <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-muted border border-border/60">
             <span className="text-xs font-medium text-muted-foreground">
               {filteredTransactions.length} {language === "id" ? "transaksi" : "transactions"}
             </span>
@@ -125,7 +125,7 @@ export function TransactionsClient({
 
       <Card>
         <CardHeader className="pb-4">
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3.5">
             <div className="flex items-center justify-between">
               <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                 {t.history}
@@ -133,29 +133,41 @@ export function TransactionsClient({
             </div>
             
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
-              <div className="relative w-full sm:w-64">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+              <div className="relative w-full sm:w-72">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                 <Input
                   type="search"
                   placeholder={t.searchTransactions}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-9 h-9 text-xs w-full"
+                  className="pl-10 h-10 text-xs sm:text-sm w-full rounded-xl"
                 />
+                {searchTerm && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchTerm("")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground hover:text-foreground p-1 rounded-md"
+                  >
+                    ✕
+                  </button>
+                )}
               </div>
-              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+
+              {/* Segmented Filter Tabs */}
+              <div className="grid grid-cols-4 gap-1 p-1 bg-muted/60 rounded-xl w-full sm:w-auto border border-border/40">
                 {typeFilterOptions.map(opt => (
                   <button
                     key={opt.value}
                     type="button"
                     onClick={() => setSelectedType(opt.value)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap shrink-0 transition-all ${
+                    className={`py-2 px-2 rounded-lg text-xs font-semibold transition-all text-center whitespace-nowrap ${
                       selectedType === opt.value
-                        ? "bg-primary text-primary-foreground shadow-sm font-semibold"
-                        : "bg-muted text-muted-foreground hover:bg-accent/60 hover:text-foreground"
+                        ? "bg-primary text-primary-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground hover:bg-accent/40"
                     }`}
                   >
-                    {opt.label}
+                    <span className="hidden sm:inline">{opt.label}</span>
+                    <span className="sm:hidden">{opt.shortLabel}</span>
                   </button>
                 ))}
               </div>

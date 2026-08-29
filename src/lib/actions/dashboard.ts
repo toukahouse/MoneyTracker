@@ -37,12 +37,22 @@ export async function getDashboardData(month?: number, year?: number) {
 
   const netCashflow = monthlyIncome - monthlyExpenses;
 
-  // 3. Active wishlists count
+  // 3. Active wishlists count & intelligent prioritization
   const userWishlists = await db.query.wishlists.findMany({
     where: eq(wishlists.userId, user.id),
+    orderBy: [desc(wishlists.updatedAt), desc(wishlists.createdAt)],
   });
-  const activeWishlists = userWishlists.filter((w) => w.status !== "COMPLETED");
-  const primaryWishlist = userWishlists[0] || null;
+
+  const sortedWishlists = [...userWishlists].sort((a, b) => {
+    const statusScore = (s: string) => (s === "IN_PROGRESS" ? 3 : s === "PLANNING" ? 2 : 1);
+    const scoreDiff = statusScore(b.status) - statusScore(a.status);
+    if (scoreDiff !== 0) return scoreDiff;
+    return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+  });
+
+  const activeWishlists = sortedWishlists.filter((w) => w.status !== "COMPLETED");
+  const primaryWishlist = activeWishlists[0] || sortedWishlists[0] || null;
+  const recentWishlists = activeWishlists.slice(0, 2);
 
   // 4. Daily Chart Data (Days 1 to 31 for the target month)
   const daysInMonth = new Date(targetYear, targetMonth, 0).getDate();
@@ -91,6 +101,7 @@ export async function getDashboardData(month?: number, year?: number) {
     recentTransactions,
     spendingLimits,
     primaryWishlist,
+    recentWishlists,
     currentMonth: targetMonth,
     currentYear: targetYear,
   };

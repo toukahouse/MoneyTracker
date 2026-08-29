@@ -95,7 +95,7 @@ export function DashboardClient({
   const {
     totalBalance, monthlyIncome, monthlyExpenses, netCashflow,
     activeWishlistsCount, dailyChartData, recentTransactions,
-    spendingLimits, primaryWishlist,
+    spendingLimits, primaryWishlist, recentWishlists,
   } = initialData;
 
   const isPositive = netCashflow >= 0;
@@ -380,52 +380,73 @@ export function DashboardClient({
               <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-0.5">
                 {t.wishlistProgress}
               </CardTitle>
-              <p className="text-sm font-semibold">{language === "id" ? "Target Utama" : "Top Goal"}</p>
+              <p className="text-sm font-semibold">{language === "id" ? "Target Impian Aktif" : "Active Goals"}</p>
             </div>
             <Link href="/wishlists" className="text-xs font-medium text-primary hover:text-primary/80 hover:underline transition-colors">
               {language === "id" ? "Semua →" : "All →"}
             </Link>
           </CardHeader>
           <CardContent>
-            {primaryWishlist ? (() => {
-              const prog = Math.min(
-                Math.round((parseFloat(primaryWishlist.allocatedAmount) / parseFloat(primaryWishlist.totalEstimatedCost)) * 100),
-                100
-              );
-              return (
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3 p-4 rounded-2xl bg-gradient-to-br from-primary/8 to-primary/4 border border-primary/10">
-                    <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shrink-0 shadow-md shadow-primary/25">
-                      <Target className="w-5 h-5 text-primary-foreground" />
+            {(() => {
+              const wishlistsToShow = (recentWishlists && recentWishlists.length > 0)
+                ? recentWishlists
+                : (primaryWishlist ? [primaryWishlist] : []);
+
+              if (wishlistsToShow.length === 0) {
+                return (
+                  <div className="py-8 text-center">
+                    <div className="w-10 h-10 rounded-full bg-muted mx-auto mb-2 flex items-center justify-center">
+                      <Target className="w-5 h-5 text-muted-foreground" />
                     </div>
-                    <div className="flex-1 min-w-0 space-y-1.5">
-                      <div className="flex items-baseline justify-between gap-2">
-                        <p className="text-sm font-bold truncate">{primaryWishlist.title}</p>
-                        <span className="text-xs font-semibold text-primary shrink-0">{prog}%</span>
-                      </div>
-                      <Progress value={prog} className="h-1.5" indicatorColor="bg-primary" />
-                      <p className="text-xs text-muted-foreground tabular-nums">
-                        {formatCurrency(parseFloat(primaryWishlist.allocatedAmount))} / {formatCurrency(parseFloat(primaryWishlist.totalEstimatedCost))}
-                      </p>
-                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {language === "id" ? "Belum ada wishlist aktif" : "No active wishlists"}
+                    </p>
                   </div>
-                  <p className="text-xs text-center text-muted-foreground">
-                    {language === "id"
-                      ? `Sisa ${formatCurrency(parseFloat(primaryWishlist.totalEstimatedCost) - parseFloat(primaryWishlist.allocatedAmount))} lagi`
-                      : `${formatCurrency(parseFloat(primaryWishlist.totalEstimatedCost) - parseFloat(primaryWishlist.allocatedAmount))} remaining`}
-                  </p>
+                );
+              }
+
+              return (
+                <div className="space-y-3">
+                  {wishlistsToShow.map((wl: any) => {
+                    const allocatedNum = parseFloat(wl.allocatedAmount || "0");
+                    const totalCostNum = parseFloat(wl.totalEstimatedCost || "0");
+                    const prog = totalCostNum > 0 ? Math.min(Math.round((allocatedNum / totalCostNum) * 100), 100) : 0;
+                    const remaining = Math.max(0, totalCostNum - allocatedNum);
+
+                    return (
+                      <div
+                        key={wl.id}
+                        className="p-3.5 rounded-2xl bg-gradient-to-br from-primary/8 to-primary/3 border border-primary/10 space-y-2.5"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center shrink-0 text-primary">
+                            <Target className="w-5 h-5" />
+                          </div>
+                          <div className="min-w-0 flex-1 overflow-hidden">
+                            <div className="flex items-center justify-between gap-2">
+                              <MarqueeText text={wl.title} className="text-sm font-bold text-foreground" />
+                              <span className="text-xs font-bold text-primary shrink-0 tabular-nums">{prog}%</span>
+                            </div>
+                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-muted text-muted-foreground mt-0.5">
+                              {wl.status === "IN_PROGRESS"
+                                ? (language === "id" ? "Sedang Berjalan" : "In Progress")
+                                : (language === "id" ? "Perencanaan" : "Planning")}
+                            </span>
+                          </div>
+                        </div>
+
+                        <Progress value={prog} className="h-1.5" indicatorColor="bg-primary" />
+
+                        <div className="flex items-center justify-between text-[11px] text-muted-foreground tabular-nums pt-0.5">
+                          <span className="font-medium">{formatCurrency(allocatedNum)} / {formatCurrency(totalCostNum)}</span>
+                          <span>{language === "id" ? `Sisa ${formatCurrency(remaining)}` : `${formatCurrency(remaining)} left`}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               );
-            })() : (
-              <div className="py-8 text-center">
-                <div className="w-10 h-10 rounded-full bg-muted mx-auto mb-2 flex items-center justify-center">
-                  <Target className="w-5 h-5 text-muted-foreground" />
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {language === "id" ? "Belum ada wishlist aktif" : "No active wishlists"}
-                </p>
-              </div>
-            )}
+            })()}
           </CardContent>
         </Card>
       </div>

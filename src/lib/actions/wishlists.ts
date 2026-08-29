@@ -127,6 +127,7 @@ export async function allocateFunds(wishlistId: string, pocketId: string, amount
     .set({
       allocatedAmount: newAllocated.toFixed(2),
       status: newAllocated >= parseFloat(wl.totalEstimatedCost) ? "COMPLETED" : "IN_PROGRESS",
+      updatedAt: new Date(),
     })
     .where(eq(wishlists.id, wishlistId));
 

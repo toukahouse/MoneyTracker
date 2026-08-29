@@ -8,7 +8,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: toukahouse/moneytracker
 
 jobs:
   build-and-push:
@@ -85,7 +85,7 @@ jobs:
             cat << 'EOF' > docker-compose.yml
             services:
               moneytracker:
-                image: ghcr.io/${{ github.repository }}:latest
+                image: ghcr.io/toukahouse/moneytracker:latest
                 container_name: moneytracker-app
                 restart: always
                 ports:
